@@ -1,5 +1,5 @@
 //**************************************************************
-// Assignment #2
+// Assignment #4
 // Name: Angel Badillo, and James
 // GPU Programming Date: Date of Submission (M/D/Y)
 //***************************************************************
