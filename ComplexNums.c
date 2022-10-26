@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
+#define K 8
+#define N 8192
 /**
  * @brief Represents a Complex number.
  * Contains real and imaginary part.
@@ -60,8 +61,25 @@ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
 
 int main()
 {
-    struct CmplxNum B = {25,25};
-    struct CmplxNum A = {25,-100};
-    struct CmplxNum Z = CmplxMult(A, B);
-    printf("%f + %fi", Z.a, Z.bi);
+    // struct CmplxNum B = {25,25};
+    // struct CmplxNum A = {25,-100};
+    // struct CmplxNum Z = CmplxMult(A, B);
+    // printf("%f + %fi", Z.a, Z.bi);
+
+    // // Only accurate to 15 digits after decimal point
+    // double pi = 2*acos(0.0);
+    // printf("\n%.15f\n", pi);
+    // // 3.141592653589793
+    
+    
+    // double XR[K];
+    // double XI[K];
+
+    // printf("=====================================\n");
+    // printf("TOTAL PROCESSED SAMPLES: %d\n", N);
+    // printf("=====================================\n");
+    // for (int i = 0; i < K; ++i)
+    // {
+    //     printf("%.6f + %.6fi  [K= %d]\n", XR[i], XI[i], i);
+    // }
 }
