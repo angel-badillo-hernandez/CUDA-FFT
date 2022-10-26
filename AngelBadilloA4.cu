@@ -23,7 +23,28 @@
 const double PI = 2*acos(0.0);
 
 // Byte size of type double
-const int DOUBLE_SIZE = sizeof(double);
+const int NBYTE_SIZE = N * sizeof(double);
+
+const int KBYTE_SIZE = K * sizeof(double);
+
+/**
+ * computeFFT
+ * @brief Compute K no. of FFT coefficients with N no. of samples.
+ *        Implements the Cooley-Turkey FFT algorithm (AKA Radix-2).
+ * 
+ * @param R real part of samples for x(n)
+ * @param I imaginary part of samples for x(n)
+ * @param XR real part of FTT coefficients
+ * @param XI imaginary part of FFT coefficients
+ */
+__global__ void computeFFT(double* R, double* I, double* XR, double* XI)
+{
+    int globalIdx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    // Definitely need a non-cyclic thing here (maybe)?
+    // for(int i = globalIdx; i < (N/2)*(blockIdx.x+1); i+=blockDim.x)
+    // C[i] = A[i]*B[i];
+}
 
 /**
  * @brief Represents a Complex number.
@@ -96,19 +117,43 @@ int main()
     double* XR_d;
     double* XI_d;
     
+    // Allocate memory for R_d, I_d, XR_d, and XI_d
+    cudaMalloc((void **)&R_d, NBYTE_SIZE);
+    cudaMalloc((void **)&I_d, NBYTE_SIZE);
+    cudaMalloc((void **)&XR_d, KBYTE_SIZE);
+    cudaMalloc((void **)&XI_d, KBYTE_SIZE);
+
+    // Copy arrays R & I to R_d & I_d, respectively
+    cudaMemcpy(R_d, R, NBYTE_SIZE, cudaMemcpyHostToDevice);
+    cudaMemcpy(I_d, I, NBYTE_SIZE, cudaMemcpyHostToDevice);
+
     // Dimensions of grid & block
     dim3 dimGrid(4,1);
     dim3 dimBlock(1024,1);
 
-    printf("=====================================\n");
+    // Call kernel to compute FFT
+    computeFFT<<<dimGrid, dimBlock>>>(R_d, I_d, XR_d, XI_d);
+    
+    // Copy XR_d & XI_d to XR & XI
+    cudaMemcpy(XR, XR_d, KBYTE_SIZE, cudaMemcpyDeviceToHost);
+    cudaMemcpy(XI, XI_d, KBYTE_SIZE, cudaMemcpyDeviceToHost);
+
+    // Free memory
+    cudaFree(R_d);
+    cudaFree(I_d);
+    cudaFree(XR_d);
+    cudaFree(XI_d);
+
+    // Print the N Fourier Coefficients from X(0) to X(7)
+    printf("==========================================================================\n");
     printf("TOTAL PROCESSED SAMPLES: %d\n", N);
-    printf("=====================================\n");
+    printf("==========================================================================\n");
     for (int i = 0; i < K; ++i)
     {
-        printf("%.6f + %.6fi  [K= %d]\n", XR[i], XI[i], i);
+        printf("XR[%d]: %.6f          XI[%d]: %.6fi\n", i, XR[i], i, XI[i]);
+        printf("==========================================================================\n");
     }
     
-
     return EXIT_SUCCESS;
 }
 
