@@ -66,21 +66,21 @@ int main()
     // struct CmplxNum Z = CmplxMult(A, B);
     // printf("%f + %fi", Z.a, Z.bi);
 
-    // // Only accurate to 15 digits after decimal point
-    // double pi = 2*acos(0.0);
-    // printf("\n%.15f\n", pi);
-    // // 3.141592653589793
+    // Only accurate to 15 digits after decimal point
+    const double pi = 2*acos(0.0);
+    printf("\n%.15f\n", pi);
+    // 3.141592653589793
     
     
-    double XR[K];
-    double XI[K];
+    // double XR[K];
+    // double XI[K];
 
-    printf("==========================================================================\n");
-    printf("TOTAL PROCESSED SAMPLES: %d\n", N);
-    printf("==========================================================================\n");
-    for (int i = 0; i < K; ++i)
-    {
-        printf("XR[%d]: %.6f          XI[%d]: %.6fi\n", i, XR[i], i, XI[i]);
-        printf("==========================================================================\n");
-    }
+    // printf("==========================================================================\n");
+    // printf("TOTAL PROCESSED SAMPLES: %d\n", N);
+    // printf("==========================================================================\n");
+    // for (int i = 0; i < K; ++i)
+    // {
+    //     printf("XR[%d]: %.6f          XI[%d]: %.6fi\n", i, XR[i], i, XI[i]);
+    //     printf("==========================================================================\n");
+    // }
 }
