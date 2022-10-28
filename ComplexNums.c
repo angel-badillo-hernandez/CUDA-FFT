@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define K 8
-#define N 8192
+// const int N = 8192;
+const double pi = 3.141592653589793;
 /**
  * @brief Represents a Complex number.
  * Contains real and imaginary part.
- * 
+ *
  */
 struct CmplxNum
 {
@@ -16,11 +16,11 @@ struct CmplxNum
 
 /**
  * CmplxAdd
- * @brief 
+ * @brief
  * Calculates the sum of CmplxNum X and Y, then returns sum as CmplxNum.
  * @param X Augend, a CmplxNum
  * @param Y Addend, a CmplxNum
- * @return Sum as struct CmplxNum 
+ * @return Sum as struct CmplxNum
  */
 struct CmplxNum CmplxAdd(struct CmplxNum X, struct CmplxNum Y)
 {
@@ -30,11 +30,11 @@ struct CmplxNum CmplxAdd(struct CmplxNum X, struct CmplxNum Y)
 
 /**
  * CmplxSub
- * @brief 
+ * @brief
  * Calculates the difference from CmplxNum X and Y, then returns difference as CmplxNum.
  * @param X Subtrahend, as a  CmplxNum
  * @param Y Minuend, as a CmplxNum
- * @return Difference, as a struct CmplxNum 
+ * @return Difference, as a struct CmplxNum
  */
 struct CmplxNum CmplxSub(struct CmplxNum X, struct CmplxNum Y)
 {
@@ -48,30 +48,75 @@ struct CmplxNum CmplxSub(struct CmplxNum X, struct CmplxNum Y)
  * Multiplies two CmplxNum together, then returns product as a CmplxNum.
  * @param X Multiplicand, as a CmplxNum
  * @param Y Multiplier, as a CmplxNum
- * @return struct CmplxNum 
+ * @return struct CmplxNum
  */
 struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
-{   
+{
     // X = a + bi
     // Y = c + di
     // XY = (a+bi)(c+di) = (ac−bd) + (ad+bc)i
-    struct CmplxNum Z = {.a = (X.a * Y.a) - (X.bi*Y.bi), .bi = (X.a * Y.bi) + (X.bi*Y.a)};
+    struct CmplxNum Z = {.a = (X.a * Y.a) - (X.bi * Y.bi), .bi = (X.a * Y.bi) + (X.bi * Y.a)};
     return Z;
+}
+
+struct CmplxNum evenPartAtm(double R[], double I[], int m, int N, int k)
+{
+    struct CmplxNum funcX2n = {.a = R[2 * m], .bi = I[2 * m]};
+    struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
+    return CmplxMult(funcX2n, eulerPart);
+}
+
+void evenPartOfK(double XR[], double XI[], double R[], double I[], int M, int k)
+{
+    for (int n = 0; n <= (M / 2) - 1; n++)
+    {
+        struct CmplxNum result = evenPartAtm(R, I, n, M, k);
+        printf("%f + %fi\n", result.a, result.bi);
+        XR[k] += result.a;
+        XI[k] += result.bi;
+    }
+}
+
+struct CmplxNum oddPartAtm(double R[], double I[], int m, int N, int k)
+{
+    struct CmplxNum funcX2n = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
+    struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
+    return CmplxMult(funcX2n, eulerPart);
+}
+
+struct CmplxNum twiddleFactor(int N, int k)
+{
+    struct CmplxNum tFactor = {.a = cos(2 * pi * k / N), .bi = -sin(2 * pi * k / N)};
+    return tFactor;
+}
+
+void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
+{
+    for (int n = 0; n <= (N / 2) - 1; n++)
+    {
+        struct CmplxNum result = CmplxMult(twiddleFactor(N, k),oddPartAtm(R, I, n, N, k));
+        printf("%f + %fi\n", result.a, result.bi);
+        XR[k] += result.a;
+        XI[k] += result.bi;
+    }
 }
 
 int main()
 {
-    // struct CmplxNum B = {25,25};
-    // struct CmplxNum A = {25,-100};
-    // struct CmplxNum Z = CmplxMult(A, B);
-    // printf("%f + %fi", Z.a, Z.bi);
+    // const double pi = 2*acos(0.0);
+    // printf("%.15f\n", pi);
+    double R[8] = {3.6, 2.9, 5.6, 4.8, 3.3, 5.9, 5, 4.3};
+    double I[8] = {2.6, 6.3, 4, 9.1, 0.4, 4.8, 2.6, 4.1};
+    double XR[8] = {0};
+    double XI[8] = {0};
 
-    // Only accurate to 15 digits after decimal point
-    const double pi = 2*acos(0.0);
-    printf("\n%.15f\n", pi);
+    evenPartOfK(XR,XI,R,I,8,1);
+    oddPartOfK(XR, XI, R, I, 8, 1);
+
+    printf("%.6f + %.6fi\n", XR[1], XI[1]);
+
     // 3.141592653589793
-    
-    
+
     // double XR[K];
     // double XI[K];
 
