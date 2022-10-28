@@ -13,10 +13,10 @@
 #include <math.h>
 
 // No. of samples
-#define N 8192
+const int N = 8192;
 
 // No. of Fourier Coefficients
-#define K 8
+
 
 // Constant for PI, precision of 15 digits after decimal point
 // 3.141592653589793
@@ -24,8 +24,6 @@ const double PI = 2*acos(0.0);
 
 // Byte size of type double
 const int NBYTE_SIZE = N * sizeof(double);
-
-const int KBYTE_SIZE = K * sizeof(double);
 
 /**
  * computeFFT
@@ -112,16 +110,16 @@ int main()
     double* I_d;
 
     //Output for Fourier coefficients
-    double XR[K];
-    double XI[K];
+    double XR[N];
+    double XI[N];
     double* XR_d;
     double* XI_d;
     
     // Allocate memory for R_d, I_d, XR_d, and XI_d
     cudaMalloc((void **)&R_d, NBYTE_SIZE);
     cudaMalloc((void **)&I_d, NBYTE_SIZE);
-    cudaMalloc((void **)&XR_d, KBYTE_SIZE);
-    cudaMalloc((void **)&XI_d, KBYTE_SIZE);
+    cudaMalloc((void **)&XR_d, NBYTE_SIZE);
+    cudaMalloc((void **)&XI_d, NBYTE_SIZE);
 
     // Copy arrays R & I to R_d & I_d, respectively
     cudaMemcpy(R_d, R, NBYTE_SIZE, cudaMemcpyHostToDevice);
@@ -135,8 +133,8 @@ int main()
     computeFFT<<<dimGrid, dimBlock>>>(R_d, I_d, XR_d, XI_d);
     
     // Copy XR_d & XI_d to XR & XI
-    cudaMemcpy(XR, XR_d, KBYTE_SIZE, cudaMemcpyDeviceToHost);
-    cudaMemcpy(XI, XI_d, KBYTE_SIZE, cudaMemcpyDeviceToHost);
+    cudaMemcpy(XR, XR_d, NBYTE_SIZE, cudaMemcpyDeviceToHost);
+    cudaMemcpy(XI, XI_d, NBYTE_SIZE, cudaMemcpyDeviceToHost);
 
     // Free memory
     cudaFree(R_d);
@@ -148,7 +146,7 @@ int main()
     printf("==========================================================================\n");
     printf("TOTAL PROCESSED SAMPLES: %d\n", N);
     printf("==========================================================================\n");
-    for (int i = 0; i < K; ++i)
+    for (int i = 0; i < 8; ++i)
     {
         printf("XR[%d]: %.6f          XI[%d]: %.6fi\n", i, XR[i], i, XI[i]);
         printf("==========================================================================\n");
