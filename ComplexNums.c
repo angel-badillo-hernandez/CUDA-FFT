@@ -71,7 +71,7 @@ void evenPartOfK(double XR[], double XI[], double R[], double I[], int M, int k)
     for (int n = 0; n <= (M / 2) - 1; n++)
     {
         struct CmplxNum result = evenPartAtm(R, I, n, M, k);
-        printf("%f + %fi\n", result.a, result.bi);
+        printf("Even n=%d: %f + %fi\n", n, result.a, result.bi);
         XR[k] += result.a;
         XI[k] += result.bi;
     }
@@ -95,7 +95,7 @@ void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
     for (int n = 0; n <= (N / 2) - 1; n++)
     {
         struct CmplxNum result = CmplxMult(twiddleFactor(N, k),oddPartAtm(R, I, n, N, k));
-        printf("%f + %fi\n", result.a, result.bi);
+        printf("Odd n=%d: %f + %fi\n", n, result.a, result.bi);
         XR[k] += result.a;
         XI[k] += result.bi;
     }
@@ -113,7 +113,7 @@ int main()
     evenPartOfK(XR,XI,R,I,8,1);
     oddPartOfK(XR, XI, R, I, 8, 1);
 
-    printf("%.6f + %.6fi\n", XR[1], XI[1]);
+    printf("XR[1]: %.6f        XI[1]: %.6fi\n", XR[1], XI[1]);
 
     // 3.141592653589793
 
