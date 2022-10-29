@@ -139,7 +139,7 @@ __global__ void computeFFT(double* XR, double* XI, double* R, double* I)
     struct CmplxNum ntFactor = {.a = -tFactor.a, .bi = -tFactor.bi};
     struct CmplxNum evenPart = {.a = 0, .bi = 0};
     struct CmplxNum oddPart = {.a = 0, .bi = 0};
-    for(int m = 0; m < N_SAMPLES/2-1; m++)
+    for(int m = 0; m <= N_SAMPLES/2-1; m++)
     {   
         // Ek
         struct CmplxNum funcX2m = {.a = R[2 * m], .bi = I[2 * m]};
