@@ -13,17 +13,13 @@
 #include <math.h>
 
 // No. of samples
-const int N = 8192;
-
-// No. of Fourier Coefficients
-
+const int N_SAMPLES = 8192;
 
 // Constant for PI, precision of 15 digits after decimal point
-// 3.141592653589793
-const double PI = 2*acos(0.0);
+const double pi = 3.141592653589793;
 
 // Byte size of type double
-const int NBYTE_SIZE = N * sizeof(double);
+const int NBYTE_SIZE = N_SAMPLES * sizeof(double);
 
 /**
  * computeFFT
@@ -35,13 +31,16 @@ const int NBYTE_SIZE = N * sizeof(double);
  * @param XR real part of FTT coefficients
  * @param XI imaginary part of FFT coefficients
  */
-__global__ void computeFFT(double* R, double* I, double* XR, double* XI)
+__global__ void computeFFT(double* XR, double* XI, double* R, double* I)
 {
     int globalIdx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    // Definitely need a non-cyclic thing here (maybe)?
-    // for(int i = globalIdx; i < (N/2)*(blockIdx.x+1); i+=blockDim.x)
-    // C[i] = A[i]*B[i];
+    for(int i = 0; i < N_SAMPLES/2; i++)
+    {
+        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
+        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
+        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
+        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
+    }
 }
 
 /**
@@ -100,18 +99,59 @@ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
     return Z;
 }
 
+struct CmplxNum evenPartAtm(double R[], double I[], int m, int N, int k)
+{
+    struct CmplxNum funcX2n = {.a = R[2 * m], .bi = I[2 * m]};
+    struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
+    return CmplxMult(funcX2n, eulerPart);
+}
+
+void evenPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
+{
+    for (int n = 0; n <= (N / 2) - 1; n++)
+    {
+        struct CmplxNum result = evenPartAtm(R, I, n, N, k);
+        printf("Even n=%d: %f + %fi\n", n, result.a, result.bi);
+        XR[k] += result.a;
+        XI[k] += result.bi;
+    }
+}
+
+struct CmplxNum oddPartAtm(double R[], double I[], int m, int N, int k)
+{
+    struct CmplxNum funcX2n = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
+    struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
+    return CmplxMult(funcX2n, eulerPart);
+}
+
+struct CmplxNum twiddleFactor(int N, int k)
+{
+    struct CmplxNum tFactor = {.a = cos(2 * pi * k / N), .bi = -sin(2 * pi * k / N)};
+    return tFactor;
+}
+
+void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
+{
+    for (int n = 0; n <= (N / 2) - 1; n++)
+    {
+        struct CmplxNum result = CmplxMult(twiddleFactor(N, k),oddPartAtm(R, I, n, N, k));
+        printf("Odd n=%d: %f + %fi\n", n, result.a, result.bi);
+        XR[k] += result.a;
+        XI[k] += result.bi;
+    }
+}
 
 int main()
 {
     // Real and imaginary components of samples
-    double R[N] = {3.6, 2.9, 5.6, 4.8, 3.3, 5.9, 5.0, 4.3};
-    double I[N] = {2.6, 6.3, 4.0, 9.1, 0.4, 4.8, 2.6, 4.1};
+    double R[N_SAMPLES] = {3.6, 2.9, 5.6, 4.8, 3.3, 5.9, 5.0, 4.3};
+    double I[N_SAMPLES] = {2.6, 6.3, 4.0, 9.1, 0.4, 4.8, 2.6, 4.1};
     double* R_d;
     double* I_d;
 
     //Output for Fourier coefficients
-    double XR[N];
-    double XI[N];
+    double XR[N_SAMPLES];
+    double XI[N_SAMPLES];
     double* XR_d;
     double* XI_d;
     
@@ -144,7 +184,7 @@ int main()
 
     // Print the N Fourier Coefficients from X(0) to X(7)
     printf("==========================================================================\n");
-    printf("TOTAL PROCESSED SAMPLES: %d\n", N);
+    printf("TOTAL PROCESSED SAMPLES: %d\n", N_SAMPLES);
     printf("==========================================================================\n");
     for (int i = 0; i < 8; ++i)
     {
