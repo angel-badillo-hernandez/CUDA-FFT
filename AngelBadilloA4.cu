@@ -22,28 +22,6 @@ const double pi = 3.141592653589793;
 const int NBYTE_SIZE = N_SAMPLES * sizeof(double);
 
 /**
- * computeFFT
- * @brief Compute K no. of FFT coefficients with N no. of samples.
- *        Implements the Cooley-Turkey FFT algorithm (AKA Radix-2).
- * 
- * @param R real part of samples for x(n)
- * @param I imaginary part of samples for x(n)
- * @param XR real part of FTT coefficients
- * @param XI imaginary part of FFT coefficients
- */
-__global__ void computeFFT(double* XR, double* XI, double* R, double* I)
-{
-    int globalIdx = threadIdx.x + blockIdx.x * blockDim.x;
-    for(int i = 0; i < N_SAMPLES/2; i++)
-    {
-        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
-        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
-        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
-        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
-    }
-}
-
-/**
  * @brief Represents a Complex number.
  * Contains real and imaginary part.
  * 
@@ -138,6 +116,29 @@ void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
         printf("Odd n=%d: %f + %fi\n", n, result.a, result.bi);
         XR[k] += result.a;
         XI[k] += result.bi;
+    }
+}
+
+
+/**
+ * computeFFT
+ * @brief Compute K no. of FFT coefficients with N no. of samples.
+ *        Implements the Cooley-Turkey FFT algorithm (AKA Radix-2).
+ * 
+ * @param R real part of samples for x(n)
+ * @param I imaginary part of samples for x(n)
+ * @param XR real part of FTT coefficients
+ * @param XI imaginary part of FFT coefficients
+ */
+__global__ void computeFFT(double* XR, double* XI, double* R, double* I)
+{
+    int globalIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    for(int i = 0; i < N_SAMPLES/2; i++)
+    {
+        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
+        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
+        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
+        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
     }
 }
 
