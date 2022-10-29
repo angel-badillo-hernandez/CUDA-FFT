@@ -109,7 +109,7 @@ int main()
     double I[8] = {2.6, 6.3, 4, 9.1, 0.4, 4.8, 2.6, 4.1};
     double XR[8] = {0};
     double XI[8] = {0};
-
+    
     evenPartOfK(XR,XI,R,I,8,1);
     oddPartOfK(XR, XI, R, I, 8, 1);
 

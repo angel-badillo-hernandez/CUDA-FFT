@@ -12,15 +12,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-
 // No. of samples
 const int N_SAMPLES = 8192;
 
-// Constant for pi
-const double PI = 3.1415926535897932;
+// Constant for PI, precision of 15 digits after decimal point
+const long double pi = 3.14159265358979323846264338;
 
-// Byte size of type double
-const int NBYTE_SIZE = N_SAMPLES * sizeof(double);
+// Byte size of type long double
+const int NBYTE_SIZE = N_SAMPLES * sizeof(long double);
 
 /**
  * @brief Represents a Complex number.
@@ -29,8 +28,8 @@ const int NBYTE_SIZE = N_SAMPLES * sizeof(double);
  */
 struct CmplxNum
 {
-    double a;  // real part of complex number
-    double bi; // imaginary part of complex number
+    long double a;  // real part of complex number
+    long double bi; // imaginary part of complex number
 };
 
 /**
@@ -44,6 +43,20 @@ struct CmplxNum
 __device__ struct CmplxNum CmplxAdd(struct CmplxNum X, struct CmplxNum Y)
 {
     struct CmplxNum Z = {.a = X.a + Y.a, .bi = X.bi + Y.bi};
+    return Z;
+}
+
+/**
+ * CmplxSub
+ * @brief 
+ * Calculates the difference from CmplxNum X and Y, then returns difference as CmplxNum.
+ * @param X Subtrahend, as a  CmplxNum
+ * @param Y Minuend, as a CmplxNum
+ * @return Difference, as a struct CmplxNum 
+ */
+struct CmplxNum CmplxSub(struct CmplxNum X, struct CmplxNum Y)
+{
+    struct CmplxNum Z = {.a = X.a - Y.a, .bi = X.bi - Y.bi};
     return Z;
 }
 
@@ -64,14 +77,14 @@ __device__ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
     return Z;
 }
 
-__device__ struct CmplxNum evenPartAtm(double R[], double I[], int m, int N, int k)
+__device__ struct CmplxNum evenPartAtm(long double R[], long double I[], int m, int N, int k)
 {
     struct CmplxNum funcX2m = {.a = R[2 * m], .bi = I[2 * m]};
-    struct CmplxNum eulerPart = {.a = cos(2 * PI * 2 * m * k / N), .bi = -sin(2 * PI * 2 * m * k / N)};
+    struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
     return CmplxMult(funcX2m, eulerPart);
 }
 
-__device__ void evenPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
+__device__ void evenPartOfK(long double XR[], long double XI[], long double R[], long double I[], int N, int k)
 {
     for (int n = 0; n <= (N / 2) - 1; n++)
     {
@@ -82,20 +95,20 @@ __device__ void evenPartOfK(double XR[], double XI[], double R[], double I[], in
     }
 }
 
-__device__ struct CmplxNum oddPartAtm(double R[], double I[], int m, int N, int k)
+__device__ struct CmplxNum oddPartAtm(long double R[], long double I[], int m, int N, int k)
 {
     struct CmplxNum funcX2mP1 = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
-    struct CmplxNum eulerPart = {.a = cos(2 * PI * 2 * m * k / N), .bi = -sin(2 * PI * 2 * m * k / N)};
+    struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
     return CmplxMult(funcX2mP1, eulerPart);
 }
 
 __device__ struct CmplxNum twiddleFactor(int N, int k)
 {
-    struct CmplxNum tFactor = {.a = cos(2 * PI * k / N), .bi = -sin(2 * PI * k / N)};
+    struct CmplxNum tFactor = {.a = cos(2 * pi * k / N), .bi = -sin(2 * pi * k / N)};
     return tFactor;
 }
 
-__device__ void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
+__device__ void oddPartOfK(long double XR[], long double XI[], long double R[], long double I[], int N, int k)
 {
     for (int n = 0; n <= (N / 2) - 1; n++)
     {
@@ -117,23 +130,24 @@ __device__ void oddPartOfK(double XR[], double XI[], double R[], double I[], int
  * @param XR real part of FTT coefficients
  * @param XI imaginary part of FFT coefficients
  */
-__global__ void computeFFT(double* XR, double* XI, double* R, double* I)
+__global__ void computeFFT(long double* XR, long double* XI, long double* R, long double* I)
 {
     // Global index
     int k = threadIdx.x + blockIdx.x * blockDim.x;
 
-    struct CmplxNum tFactor = {.a = cos(2 * PI * k / N_SAMPLES), .bi = -sin(2 * PI * k / N_SAMPLES)};
+    struct CmplxNum tFactor = {.a = cos(2 * pi * k / N_SAMPLES), .bi = -sin(2 * pi * k / N_SAMPLES)};
+    struct CmplxNum ntFactor = {.a = -tFactor.a, .bi = -tFactor.bi};
     struct CmplxNum evenPart = {.a = 0, .bi = 0};
     struct CmplxNum oddPart = {.a = 0, .bi = 0};
     for(int m = 0; m <= N_SAMPLES/2-1; m++)
     {   
-        // E(k)
+        // Ek
         struct CmplxNum funcX2m = {.a = R[2 * m], .bi = I[2 * m]};
-        struct CmplxNum eulerPart = {.a = cos(2 * PI * 2 * m * k / N_SAMPLES), .bi = -sin(2 * PI * 2 * m * k / N_SAMPLES)};
+        struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N_SAMPLES), .bi = -sin(2 * pi * 2 * m * k / N_SAMPLES)};
         struct CmplxNum resEven = CmplxMult(funcX2m, eulerPart);
         evenPart = CmplxAdd(evenPart, resEven);
 
-        // O(k)
+        // Ok
         struct CmplxNum funcX2mP1 = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
         struct CmplxNum resOdd = CmplxMult(funcX2mP1,eulerPart);
         oddPart = CmplxAdd(oddPart, resOdd);
@@ -148,23 +162,25 @@ __global__ void computeFFT(double* XR, double* XI, double* R, double* I)
     struct CmplxNum temp = CmplxMult(tFactor, oddPart);
     XR[k] += temp.a;
     XI[k] += temp.bi;
-    XR[k+N_SAMPLES/2] -= temp.a;
-    XI[k+N_SAMPLES/2] -= temp.bi;
+
+    temp = CmplxMult(ntFactor, oddPart);
+    XR[k+N_SAMPLES/2] += temp.a;
+    XI[k+N_SAMPLES/2] += temp.bi;
 }
 
 int main()
 {
     // Real and imaginary components of samples
-    double R[N_SAMPLES] = {3.6, 2.9, 5.6, 4.8, 3.3, 5.9, 5.0, 4.3};
-    double I[N_SAMPLES] = {2.6, 6.3, 4.0, 9.1, 0.4, 4.8, 2.6, 4.1};
-    double* R_d;
-    double* I_d;
+    long double R[N_SAMPLES] = {3.6, 2.9, 5.6, 4.8, 3.3, 5.9, 5.0, 4.3};
+    long double I[N_SAMPLES] = {2.6, 6.3, 4.0, 9.1, 0.4, 4.8, 2.6, 4.1};
+    long double* R_d;
+    long double* I_d;
 
-    // Output for Fourier coefficients
-    double XR[N_SAMPLES];
-    double XI[N_SAMPLES];
-    double* XR_d;
-    double* XI_d;
+    //Output for Fourier coefficients
+    long double XR[N_SAMPLES];
+    long double XI[N_SAMPLES];
+    long double* XR_d;
+    long double* XI_d;
     
     // Allocate memory for R_d, I_d, XR_d, and XI_d
     cudaMalloc((void **)&R_d, NBYTE_SIZE);
@@ -202,7 +218,7 @@ int main()
     printf("==========================================================================\n");
     for (int i = 0; i < 8; ++i)
     {
-        printf("XR[%d]: %f          XI[%d]: %fi\n", i, XR[i], i, XI[i]);
+        printf("XR[%d]: %.6f          XI[%d]: %.6fi\n", i, XR[i], i, XI[i]);
         printf("==========================================================================\n");
     }
     
