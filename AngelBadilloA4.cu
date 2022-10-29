@@ -77,14 +77,14 @@ __device__ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
     return Z;
 }
 
-struct CmplxNum evenPartAtm(double R[], double I[], int m, int N, int k)
+__device__ struct CmplxNum evenPartAtm(double R[], double I[], int m, int N, int k)
 {
     struct CmplxNum funcX2m = {.a = R[2 * m], .bi = I[2 * m]};
     struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
     return CmplxMult(funcX2m, eulerPart);
 }
 
-void evenPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
+__device__ void evenPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
 {
     for (int n = 0; n <= (N / 2) - 1; n++)
     {
@@ -95,7 +95,7 @@ void evenPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
     }
 }
 
-struct CmplxNum oddPartAtm(double R[], double I[], int m, int N, int k)
+__device__ struct CmplxNum oddPartAtm(double R[], double I[], int m, int N, int k)
 {
     struct CmplxNum funcX2mP1 = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
     struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
@@ -108,7 +108,7 @@ struct CmplxNum twiddleFactor(int N, int k)
     return tFactor;
 }
 
-void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
+__device__ void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
 {
     for (int n = 0; n <= (N / 2) - 1; n++)
     {
