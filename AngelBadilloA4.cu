@@ -40,7 +40,7 @@ struct CmplxNum
  * @param Y Addend, a CmplxNum
  * @return Sum as struct CmplxNum 
  */
-struct CmplxNum CmplxAdd(struct CmplxNum X, struct CmplxNum Y)
+__device__ struct CmplxNum CmplxAdd(struct CmplxNum X, struct CmplxNum Y)
 {
     struct CmplxNum Z = {.a = X.a + Y.a, .bi = X.bi + Y.bi};
     return Z;
@@ -68,7 +68,7 @@ struct CmplxNum CmplxSub(struct CmplxNum X, struct CmplxNum Y)
  * @param Y Multiplier, as a CmplxNum
  * @return struct CmplxNum 
  */
-struct __device__ CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
+__device__ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
 {   
     // X = a + bi
     // Y = c + di
