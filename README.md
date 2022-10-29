@@ -3,6 +3,6 @@
 ## TODO:
 - Implement Complex Numbers struct - Done
 - Complex arithmetic functions - Done
-- Implement Even part of algorithm
-- Implement Odd part of algorithm
-- Take advantage of periodicity of DFT
+- Implement Even part of algorithm - Done
+- Implement Odd part of algorithm - Done
+- Take advantage of periodicity of DFT - Done
