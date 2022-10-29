@@ -102,7 +102,7 @@ __device__ struct CmplxNum oddPartAtm(double R[], double I[], int m, int N, int 
     return CmplxMult(funcX2mP1, eulerPart);
 }
 
-struct CmplxNum twiddleFactor(int N, int k)
+__device__ struct CmplxNum twiddleFactor(int N, int k)
 {
     struct CmplxNum tFactor = {.a = cos(2 * pi * k / N), .bi = -sin(2 * pi * k / N)};
     return tFactor;
