@@ -68,7 +68,7 @@ struct CmplxNum CmplxSub(struct CmplxNum X, struct CmplxNum Y)
  * @param Y Multiplier, as a CmplxNum
  * @return struct CmplxNum 
  */
-struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
+struct __device__ CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
 {   
     // X = a + bi
     // Y = c + di
@@ -79,9 +79,9 @@ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
 
 struct CmplxNum evenPartAtm(double R[], double I[], int m, int N, int k)
 {
-    struct CmplxNum funcX2n = {.a = R[2 * m], .bi = I[2 * m]};
+    struct CmplxNum funcX2m = {.a = R[2 * m], .bi = I[2 * m]};
     struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
-    return CmplxMult(funcX2n, eulerPart);
+    return CmplxMult(funcX2m, eulerPart);
 }
 
 void evenPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
@@ -97,9 +97,9 @@ void evenPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
 
 struct CmplxNum oddPartAtm(double R[], double I[], int m, int N, int k)
 {
-    struct CmplxNum funcX2n = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
+    struct CmplxNum funcX2mP1 = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
     struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N), .bi = -sin(2 * pi * 2 * m * k / N)};
-    return CmplxMult(funcX2n, eulerPart);
+    return CmplxMult(funcX2mP1, eulerPart);
 }
 
 struct CmplxNum twiddleFactor(int N, int k)
@@ -132,14 +132,40 @@ void oddPartOfK(double XR[], double XI[], double R[], double I[], int N, int k)
  */
 __global__ void computeFFT(double* XR, double* XI, double* R, double* I)
 {
-    int globalIdx = threadIdx.x + blockIdx.x * blockDim.x;
-    for(int i = 0; i < N_SAMPLES/2; i++)
-    {
-        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
-        evenPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
-        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx);
-        oddPartOfK(XR, XI, R, I, N_SAMPLES, globalIdx+N_SAMPLES/2);
+    // Global index
+    int k = threadIdx.x + blockIdx.x * blockDim.x;
+
+    struct CmplxNum tFactor = {.a = cos(2 * pi * k / N_SAMPLES), .bi = -sin(2 * pi * k / N_SAMPLES)};
+    struct CmplxNum ntFactor = {.a = -tFactor.a, .bi = -tFactor.bi};
+    struct CmplxNum evenPart = {.a = 0, .bi = 0};
+    struct CmplxNum oddPart = {.a = 0, .bi = 0};
+    for(int m = 0; m < N_SAMPLES/2-1; m++)
+    {   
+        // Ek
+        struct CmplxNum funcX2m = {.a = R[2 * m], .bi = I[2 * m]};
+        struct CmplxNum eulerPart = {.a = cos(2 * pi * 2 * m * k / N_SAMPLES), .bi = -sin(2 * pi * 2 * m * k / N_SAMPLES)};
+        struct CmplxNum resEven = CmplxMult(funcX2m, eulerPart);
+        evenPart = CmplxAdd(evenPart, resEven);
+
+        // Ok
+        struct CmplxNum funcX2mP1 = {.a = R[(2 * m) + 1], .bi = I[(2 * m) + 1]};
+        struct CmplxNum resOdd = CmplxMult(funcX2mP1,eulerPart);
+        oddPart = CmplxAdd(oddPart, resOdd);
     }
+    // Adding even parts
+    XR[k] += evenPart.a;
+    XI[k] += evenPart.bi;
+    XR[k+N_SAMPLES/2] += evenPart.a;
+    XI[k+N_SAMPLES/2] += evenPart.bi;
+
+    // Adding odd parts
+    struct CmplxNum temp = CmplxMult(tFactor, oddPart);
+    XR[k] += temp.a;
+    XI[k] += temp.bi;
+
+    temp = CmplxMult(ntFactor, oddPart);
+    XR[k+N_SAMPLES/2] += temp.a;
+    XI[k+N_SAMPLES/2] += temp.bi;
 }
 
 int main()
