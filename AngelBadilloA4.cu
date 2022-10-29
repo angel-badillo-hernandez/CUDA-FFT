@@ -16,7 +16,7 @@
 const int N_SAMPLES = 8192;
 
 // Constant for PI, precision of 15 digits after decimal point
-const double pi = 3.1415926535897932;
+const double pi = 3.14159265358979323846264338;
 
 // Byte size of type double
 const int NBYTE_SIZE = N_SAMPLES * sizeof(double);
