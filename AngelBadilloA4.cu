@@ -16,7 +16,7 @@
 const int N_SAMPLES = 8192;
 
 // Constant for PI, precision of 15 digits after decimal point
-const double pi = 3.141592653589793;
+const double pi = 3.1415926535897932;
 
 // Byte size of type double
 const int NBYTE_SIZE = N_SAMPLES * sizeof(double);
@@ -191,13 +191,16 @@ int main()
     // Copy arrays R & I to R_d & I_d, respectively
     cudaMemcpy(R_d, R, NBYTE_SIZE, cudaMemcpyHostToDevice);
     cudaMemcpy(I_d, I, NBYTE_SIZE, cudaMemcpyHostToDevice);
+    cudaMemcpy(XR_d, XR, NBYTE_SIZE, cudaMemcpyHostToDevice);
+    cudaMemcpy(XI_d, XI, NBYTE_SIZE, cudaMemcpyHostToDevice);
+
 
     // Dimensions of grid & block
     dim3 dimGrid(4,1);
     dim3 dimBlock(1024,1);
 
     // Call kernel to compute FFT
-    computeFFT<<<dimGrid, dimBlock>>>(R_d, I_d, XR_d, XI_d);
+    computeFFT<<<dimGrid, dimBlock>>>(XR_d, XI_d, R_d, I_d);
     
     // Copy XR_d & XI_d to XR & XI
     cudaMemcpy(XR, XR_d, NBYTE_SIZE, cudaMemcpyDeviceToHost);
