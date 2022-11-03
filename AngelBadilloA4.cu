@@ -184,11 +184,20 @@ int main()
     cudaFree(XR_d);
     cudaFree(XI_d);
 
-    // Print output for the first 8 Fourier Coefficients from X(0) to X(7)
+    
     printf("==========================================================================\n");
     printf("TOTAL PROCESSED SAMPLES: %d\n", N_SAMPLES);
     printf("==========================================================================\n");
+
+    // Print output for the first 8 Fourier Coefficients from X(0) to X(7)
     for (int i = 0; i < 8; ++i)
+    {
+        printf("XR[%d]: %.6f          XI[%d]: %.6fi\n", i, XR[i], i, XI[i]);
+        printf("==========================================================================\n");
+    }
+
+    // Print the output for "middle" 8 coefficients from X(4096) to X(4103)
+    for (int i = N_SAMPLES/2; i < N_SAMPLES/2 + 8; ++i)
     {
         printf("XR[%d]: %.6f          XI[%d]: %.6fi\n", i, XR[i], i, XI[i]);
         printf("==========================================================================\n");
