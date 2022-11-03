@@ -45,30 +45,31 @@ struct CmplxNum
     double bi; // imaginary part of complex number
 };
 
-/**
- * CmplxAdd
- * @brief
- * Calculates the addition of complex numbers (CmplxNum) X and Y, then returns
- * sum as CmplxNum.
- * @param X The augend, a CmplxNum
- * @param Y The addend, a CmplxNum
- * @return The sum as struct CmplxNum
- */
+//*******************************************************************
+// CmplxAdd
+// @param X The augend, a CmplxNum
+// @param Y The addend, a CmplxNum
+// @brief
+// Calculates the addition of complex numbers (CmplxNum) X and Y, then 
+// returns sum as CmplxNum.
+// @return The sum as struct CmplxNum
+//********************************************************************
 __device__ struct CmplxNum CmplxAdd(struct CmplxNum X, struct CmplxNum Y)
 {
     struct CmplxNum Z = {.a = X.a + Y.a, .bi = X.bi + Y.bi};
     return Z;
 }
 
-/**
- * CmplxMult
- * @brief
- * Calculates the multiplication of complex numbers (CmplxNum) X and Y, then returns
- * product as CmplxNum.
- * @param X The multiplicand, a CmplxNum
- * @param Y The multiplier, a CmplxNum
- * @return The product as struct CmplxNum
- */
+
+//*******************************************************************
+// CmplxMult
+// @param X The multiplicand, a CmplxNum
+// @param Y The multiplier, a CmplxNum
+// @brief
+// Calculates the multiplication of complex numbers (CmplxNum) X and 
+// Y, then returns product as CmplxNum.
+// @return The product as struct CmplxNum
+//********************************************************************
 __device__ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
 {
     // X = a + bi
@@ -78,22 +79,24 @@ __device__ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
     return Z;
 }
 
-/**
- * computeFFT
- * @brief 
- * Implements the Cooley-Turkey FFT algorithm (AKA Radix-2).
- * Computes the output for a total of N no. FFT coefficients with N no. of 
- * samples."Returns" (or modifies via reference) array of doubles XR and XI to 
- * have the output for N no. of FFT coefficients X(0) to X(N-1).
- * @param XR an array of doubles of size 8192 containing real parts of output 
- *           for N no. of FTT coefficients.
- * @param XI an array of doubles of size 8192 containing imaginary parts of output 
- *          for N no. of FFT coefficients.
- * @param R an array of doubles of size 8192 containing real part of samples for 
- *           the function x(n).
- * @param I an array of doubles of size 8192 containing imaginary part of samples 
- *          for the function x(n)
- */
+
+//*******************************************************************
+// computeFFT
+// @param XR an array of doubles of size 8192 containing real parts 
+// of output for N no. of FTT coefficients.
+// @param XI an array of doubles of size 8192 containing imaginary 
+// parts of output for N no. of FFT coefficients.
+// @param R an array of doubles of size 8192 containing real part of
+// samples for the function x(n).
+// @param I an array of doubles of size 8192 containing imaginary 
+// part of samples for the function x(n)
+// @brief
+//Implements the Cooley-Turkey FFT algorithm (AKA Radix-2).
+// Computes the output for a total of N no. FFT coefficients with N no. of 
+// samples."Returns" (or modifies via reference) array of doubles XR and XI to 
+// have the output for N no. of FFT coefficients X(0) to X(N-1).
+// @return void
+//********************************************************************
 __global__ void computeFFT(double *XR, double *XI, double *R, double *I)
 {
     // Global index
