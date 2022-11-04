@@ -91,7 +91,7 @@ __device__ struct CmplxNum CmplxMult(struct CmplxNum X, struct CmplxNum Y)
 // @param I an array of doubles of size 8192 containing imaginary 
 // part of samples for the function x(n)
 // @brief
-//Implements the Cooley-Turkey FFT algorithm (AKA Radix-2).
+// Implements the Cooley-Turkey FFT algorithm (AKA Radix-2).
 // Computes the output for a total of N no. FFT coefficients with N no. of 
 // samples."Returns" (or modifies via reference) array of doubles XR and XI to 
 // have the output for N no. of FFT coefficients X(0) to X(N-1).
