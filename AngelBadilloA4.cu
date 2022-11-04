@@ -18,7 +18,8 @@
 // to array R[N] and I[N], but the rest are initialized to 0.
 // Once the full calculation for N Fourier coefficients are
 // completed after invoking the kernel, the program will
-// print the first 8 outputs for X(0) to X(7).
+// print the first 8 outputs for X(0) to X(7), as well as
+// the "middle" 8 outputs for X(4096) to X(4103).
 //*****************************************************************
 #include <stdio.h>
 #include <stdlib.h>
