@@ -5,9 +5,9 @@
 //***************************************************************
 // How to run:
 // This program is to be run on the TACC cluster using the SBATCH
-// shell script named "AngelBadilloA4Script".
+// shell script named "fft_sbatch_script.sh".
 // The command to be run in the bash terminal is:
-// sbatch AngelBadilloA4Script
+// sbatch fft_sbatch_script.sh
 //
 // Description:
 // This program, written in CUDA C, aims to implement a Fast
